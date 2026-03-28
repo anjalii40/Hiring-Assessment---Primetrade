@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrimeTrade – Task Manager</title>
+  <meta name="description" content="Task management dashboard with JWT authentication and role-based access control." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- Auth Screen -->
+  <div id="auth-screen" class="screen active">
+    <div class="auth-container">
+      <div class="auth-brand">
+        <div class="brand-dot"></div>
+        <span>PrimeTrade</span>
+      </div>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to your account or create a new one</p>
+
+      <!-- Tabs -->
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="login" id="tab-login">Login</button>
+        <button class="tab-btn" data-tab="register" id="tab-register">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form active">
+        <div class="field-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" required />
+        </div>
+        <div class="field-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+        <div id="login-error" class="alert alert-error hidden"></div>
+        <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+          <span class="btn-text">Sign In</span>
+          <span class="btn-loader hidden">⟳</span>
+        </button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="auth-form">
+        <div class="field-group">
+          <label for="reg-email">Email</label>
+          <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email" required />
+        </div>
+        <div class="field-group">
+          <label for="reg-password">Password</label>
+          <input type="password" id="reg-password" placeholder="Min. 6 characters" autocomplete="new-password" required />
+        </div>
+        <div id="register-error" class="alert alert-error hidden"></div>
+        <div id="register-success" class="alert alert-success hidden"></div>
+        <button type="submit" class="btn btn-primary btn-full" id="register-btn">
+          <span class="btn-text">Create Account</span>
+          <span class="btn-loader hidden">⟳</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div id="dashboard-screen" class="screen">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-dot"></div>
+        <span>PrimeTrade</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" id="nav-tasks">
+          <span class="nav-icon">◈</span> Tasks
+        </a>
+        <a href="#" class="nav-item" id="nav-admin" style="display:none">
+          <span class="nav-icon">◉</span> Admin
+        </a>
+        <a href="/api/docs" class="nav-item" target="_blank">
+          <span class="nav-icon">◎</span> API Docs
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-avatar">U</div>
+          <div class="user-details">
+            <span class="user-email" id="sidebar-user-email">user@example.com</span>
+            <span class="user-role" id="sidebar-user-role">USER</span>
+          </div>
+        </div>
+        <button class="btn-logout" id="logout-btn" title="Logout">⇥</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Tasks Section -->
+      <section id="tasks-section">
+        <div class="section-header">
+          <div>
+            <h2>My Tasks</h2>
+            <p class="section-sub" id="tasks-count">Loading tasks...</p>
+          </div>
+          <button class="btn btn-primary" id="new-task-btn">+ New Task</button>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-row">
+          <button class="filter-btn active" data-status="">All</button>
+          <button class="filter-btn" data-status="TODO">To Do</button>
+          <button class="filter-btn" data-status="IN_PROGRESS">In Progress</button>
+          <button class="filter-btn" data-status="DONE">Done</button>
+        </div>
+
+        <!-- Task Grid -->
+        <div id="task-grid" class="task-grid"></div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+      </section>
+
+      <!-- Admin Section -->
+      <section id="admin-section" style="display:none">
+        <div class="section-header">
+          <div>
+            <h2>User Management</h2>
+            <p class="section-sub">Admin panel — manage all users</p>
+          </div>
+        </div>
+        <div id="users-table-wrapper" class="table-wrapper">
+          <table class="users-table">
+            <thead>
+              <tr><th>Email</th><th>Role</th><th>Tasks</th><th>Joined</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Task Modal -->
+  <div id="task-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">New Task</h3>
+        <button class="modal-close" id="modal-close">✕</button>
+      </div>
+      <form id="task-form">
+        <input type="hidden" id="task-id" />
+        <div class="field-group">
+          <label for="task-title">Title *</label>
+          <input type="text" id="task-title" placeholder="Task title" required />
+        </div>
+        <div class="field-group">
+          <label for="task-description">Description</label>
+          <textarea id="task-description" placeholder="Task description (optional)" rows="3"></textarea>
+        </div>
+        <div class="field-group">
+          <label for="task-status">Status</label>
+          <select id="task-status">
+            <option value="TODO">To Do</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="DONE">Done</option>
+          </select>
+        </div>
+        <div id="task-form-error" class="alert alert-error hidden"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="task-submit-btn">Create Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

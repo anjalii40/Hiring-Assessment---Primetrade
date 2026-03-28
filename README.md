@@ -17,6 +17,99 @@ Scalable REST API with JWT Authentication, Role-Based Access Control, and a Vani
 
 ---
 
+## Architecture Overview
+
+This project is organized as a layered monolith:
+- `routes` define versioned endpoints
+- `controllers` handle request/response logic
+- `middleware` enforces auth, validation, sanitization, and error handling
+- Prisma manages database access to PostgreSQL
+- The backend also serves the frontend and Swagger documentation
+
+```mermaid
+flowchart LR
+    U["User Browser"] --> F["Frontend<br/>HTML / CSS / Vanilla JS"]
+    U --> S["Swagger UI<br/>/api/docs"]
+    F --> A["Express App<br/>server.js + src/app.js"]
+    S --> A
+
+    A --> M["Middleware Layer<br/>cors, helmet, rate-limit,<br/>sanitize, auth, validate"]
+    M --> R["Routes<br/>/api/v1/auth<br/>/api/v1/tasks<br/>/api/v1/admin"]
+    R --> C["Controllers<br/>auth / task / admin"]
+    C --> P["Prisma Client"]
+    P --> D["PostgreSQL Database"]
+
+    C --> J["JWT + bcrypt"]
+    A --> H["Health Check<br/>/api/health"]
+```
+
+### Request Lifecycle
+
+```text
+Client Request
+   ->
+Express App
+   ->
+Security / Parsing / Rate Limit Middleware
+   ->
+Route Handler
+   ->
+Validation + Authentication Middleware
+   ->
+Controller
+   ->
+Prisma
+   ->
+PostgreSQL
+   ->
+Standard JSON Response { success, message, data }
+```
+
+---
+
+## Frontend Wireframe
+
+```text
++-----------------------------------------------------------------------------------+
+| AUTH SCREEN                                                                       |
+|-----------------------------------------------------------------------------------|
+| PrimeTrade                         Operations cockpit                              |
+| Run task delivery with a sharper control panel                                     |
+| [ JWT ] [ RBAC ] [ CRUD ]                                                         |
+|                                                                                   |
+|                          +-------------------------------------+                  |
+|                          | Login | Register                    |                  |
+|                          |-------------------------------------|                  |
+|                          | Email                               |                  |
+|                          | Password                            |                  |
+|                          | [ Sign In ]                         |                  |
+|                          +-------------------------------------+                  |
++-----------------------------------------------------------------------------------+
+
++-----------------------------------------------------------------------------------+
+| DASHBOARD                                                                         |
+|-----------------------------------------------------------------------------------|
+| Sidebar                | Hero / Mission Board                                     |
+| - Tasks                | "Execution overview"                                     |
+| - Admin                | Role pill                                                |
+| - API Docs             | [ Current View ] [ To Do ] [ In Progress ] [ Done ]      |
+|                        |                                                           |
+| User Card              | Filter chips: All / To Do / In Progress / Done           |
+| Logout                 |                                                           |
+|                        | +----------------+  +----------------+                    |
+|                        | | Task Card      |  | Task Card      |                    |
+|                        | | Title          |  | Title          |                    |
+|                        | | Status Badge   |  | Status Badge   |                    |
+|                        | | Description    |  | Description    |                    |
+|                        | | Edit Delete    |  | Edit Delete    |                    |
+|                        | +----------------+  +----------------+                    |
+|                        |                                                           |
+|                        | Pagination                                               |
++-----------------------------------------------------------------------------------+
+```
+
+---
+
 ## Setup
 
 ### 1. Prerequisites

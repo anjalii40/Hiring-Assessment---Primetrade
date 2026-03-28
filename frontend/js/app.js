@@ -80,6 +80,10 @@ async function loadDashboard() {
     document.getElementById('sidebar-user-role').textContent = currentUser.role;
     document.getElementById('user-avatar').textContent = currentUser.email[0].toUpperCase();
     document.getElementById('nav-admin').style.display = currentUser.role === 'ADMIN' ? 'flex' : 'none';
+    document.getElementById('hero-title').textContent =
+      currentUser.role === 'ADMIN' ? 'Mission control for every workflow' : 'Execution overview';
+    document.getElementById('hero-role-pill').textContent =
+      currentUser.role === 'ADMIN' ? 'Admin access enabled' : 'User workspace';
     await loadTasks();
   } catch {
     logout();
@@ -124,6 +128,7 @@ async function loadTasks() {
     const { tasks, pagination } = res.data;
     taskMap = new Map(tasks.map((task) => [task.id, task]));
     totalPages = pagination.totalPages;
+    updateDashboardStats(tasks);
 
     const count = pagination.total;
     document.getElementById('tasks-count').textContent =
@@ -137,6 +142,7 @@ async function loadTasks() {
     }
     renderPagination();
   } catch (err) {
+    updateDashboardStats([]);
     grid.innerHTML = `<div class="empty-state"><p>Failed to load tasks</p><small>${err.message}</small></div>`;
   }
 }
@@ -317,6 +323,9 @@ function logout() {
   currentStatus = '';
   taskMap = new Map();
   document.getElementById('nav-admin').style.display = 'none';
+  document.getElementById('hero-title').textContent = 'Execution overview';
+  document.getElementById('hero-role-pill').textContent = 'Secure workspace';
+  updateDashboardStats([]);
   showScreen('auth-screen');
 }
 
@@ -360,6 +369,18 @@ function escapeHtml(str) {
 
 function statusLabel(s) {
   return { TODO: 'To Do', IN_PROGRESS: 'In Progress', DONE: 'Done' }[s] || s;
+}
+
+function updateDashboardStats(tasks) {
+  const counts = tasks.reduce((acc, task) => {
+    acc[task.status] = (acc[task.status] || 0) + 1;
+    return acc;
+  }, { TODO: 0, IN_PROGRESS: 0, DONE: 0 });
+
+  document.getElementById('stat-total').textContent = tasks.length;
+  document.getElementById('stat-todo').textContent = counts.TODO || 0;
+  document.getElementById('stat-progress').textContent = counts.IN_PROGRESS || 0;
+  document.getElementById('stat-done').textContent = counts.DONE || 0;
 }
 
 let toastTimer;

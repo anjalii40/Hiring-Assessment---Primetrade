@@ -6,146 +6,226 @@
   <title>PrimeTrade – Task Manager</title>
   <meta name="description" content="Task management dashboard with JWT authentication and role-based access control." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <!-- Auth Screen -->
   <div id="auth-screen" class="screen active">
-    <div class="auth-container">
-      <div class="auth-brand">
-        <div class="brand-dot"></div>
-        <span>PrimeTrade</span>
-      </div>
-      <h1 class="auth-title">Welcome back</h1>
-      <p class="auth-subtitle">Sign in to your account or create a new one</p>
+    <div class="auth-shell">
+      <section class="auth-stage">
+        <div class="auth-brand">
+          <div class="brand-dot"></div>
+          <span>PrimeTrade</span>
+        </div>
+        <p class="eyebrow">Operations cockpit</p>
+        <h1 class="auth-display">Run task delivery with a sharper control panel.</h1>
+        <p class="auth-lead">Authenticate securely, track execution status, and keep admins and contributors working from the same live workflow.</p>
+        <div class="auth-metrics">
+          <div class="metric-card">
+            <span class="metric-value">JWT</span>
+            <span class="metric-label">token-based access</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-value">RBAC</span>
+            <span class="metric-label">admin and user views</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-value">CRUD</span>
+            <span class="metric-label">task lifecycle control</span>
+          </div>
+        </div>
+        <div class="auth-notes">
+          <div class="auth-note">
+            <span class="note-kicker">Secure by default</span>
+            <p>Password hashing, rate limiting, and protected routes are already wired in.</p>
+          </div>
+          <div class="auth-note">
+            <span class="note-kicker">Built to demo well</span>
+            <p>Swagger docs, dashboard actions, and admin role updates are ready from one entry point.</p>
+          </div>
+        </div>
+      </section>
 
-      <!-- Tabs -->
-      <div class="tab-row">
-        <button class="tab-btn active" data-tab="login" id="tab-login">Login</button>
-        <button class="tab-btn" data-tab="register" id="tab-register">Register</button>
-      </div>
+      <section class="auth-panel">
+        <div class="auth-panel-header">
+          <p class="eyebrow">Access workspace</p>
+          <h2 class="auth-title">Welcome back</h2>
+          <p class="auth-subtitle">Sign in to your account or create a new one</p>
+        </div>
 
-      <!-- Login Form -->
-      <form id="login-form" class="auth-form active">
-        <div class="field-group">
-          <label for="login-email">Email</label>
-          <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" required />
+        <!-- Tabs -->
+        <div class="tab-row">
+          <button class="tab-btn active" data-tab="login" id="tab-login">Login</button>
+          <button class="tab-btn" data-tab="register" id="tab-register">Register</button>
         </div>
-        <div class="field-group">
-          <label for="login-password">Password</label>
-          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required />
-        </div>
-        <div id="login-error" class="alert alert-error hidden"></div>
-        <button type="submit" class="btn btn-primary btn-full" id="login-btn">
-          <span class="btn-text">Sign In</span>
-          <span class="btn-loader hidden">⟳</span>
-        </button>
-      </form>
 
-      <!-- Register Form -->
-      <form id="register-form" class="auth-form">
-        <div class="field-group">
-          <label for="reg-email">Email</label>
-          <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email" required />
-        </div>
-        <div class="field-group">
-          <label for="reg-password">Password</label>
-          <input type="password" id="reg-password" placeholder="Min. 6 characters" autocomplete="new-password" required />
-        </div>
-        <div id="register-error" class="alert alert-error hidden"></div>
-        <div id="register-success" class="alert alert-success hidden"></div>
-        <button type="submit" class="btn btn-primary btn-full" id="register-btn">
-          <span class="btn-text">Create Account</span>
-          <span class="btn-loader hidden">⟳</span>
-        </button>
-      </form>
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form active">
+          <div class="field-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <div class="field-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required />
+          </div>
+          <div id="login-error" class="alert alert-error hidden"></div>
+          <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+            <span class="btn-text">Sign In</span>
+            <span class="btn-loader hidden">⟳</span>
+          </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" class="auth-form">
+          <div class="field-group">
+            <label for="reg-email">Email</label>
+            <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <div class="field-group">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" placeholder="Min. 6 characters" autocomplete="new-password" required />
+          </div>
+          <div id="register-error" class="alert alert-error hidden"></div>
+          <div id="register-success" class="alert alert-success hidden"></div>
+          <button type="submit" class="btn btn-primary btn-full" id="register-btn">
+            <span class="btn-text">Create Account</span>
+            <span class="btn-loader hidden">⟳</span>
+          </button>
+        </form>
+      </section>
     </div>
   </div>
 
   <!-- Dashboard Screen -->
   <div id="dashboard-screen" class="screen">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-dot"></div>
-        <span>PrimeTrade</span>
-      </div>
-      <nav class="sidebar-nav">
-        <a href="#" class="nav-item active" id="nav-tasks">
-          <span class="nav-icon">◈</span> Tasks
-        </a>
-        <a href="#" class="nav-item" id="nav-admin" style="display:none">
-          <span class="nav-icon">◉</span> Admin
-        </a>
-        <a href="/api/docs" class="nav-item" target="_blank">
-          <span class="nav-icon">◎</span> API Docs
-        </a>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <div class="user-avatar" id="user-avatar">U</div>
-          <div class="user-details">
-            <span class="user-email" id="sidebar-user-email">user@example.com</span>
-            <span class="user-role" id="sidebar-user-role">USER</span>
-          </div>
-        </div>
-        <button class="btn-logout" id="logout-btn" title="Logout">⇥</button>
-      </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Tasks Section -->
-      <section id="tasks-section">
-        <div class="section-header">
+    <div class="dashboard-shell">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-dot"></div>
           <div>
-            <h2>My Tasks</h2>
-            <p class="section-sub" id="tasks-count">Loading tasks...</p>
+            <span>PrimeTrade</span>
+            <small>Control center</small>
           </div>
-          <button class="btn btn-primary" id="new-task-btn">+ New Task</button>
         </div>
-
-        <!-- Filters -->
-        <div class="filter-row">
-          <button class="filter-btn active" data-status="">All</button>
-          <button class="filter-btn" data-status="TODO">To Do</button>
-          <button class="filter-btn" data-status="IN_PROGRESS">In Progress</button>
-          <button class="filter-btn" data-status="DONE">Done</button>
+        <nav class="sidebar-nav">
+          <a href="#" class="nav-item active" id="nav-tasks">
+            <span class="nav-icon">◈</span>
+            <span>Tasks</span>
+          </a>
+          <a href="#" class="nav-item" id="nav-admin" style="display:none">
+            <span class="nav-icon">◉</span>
+            <span>Admin</span>
+          </a>
+          <a href="/api/docs" class="nav-item" target="_blank">
+            <span class="nav-icon">◎</span>
+            <span>API Docs</span>
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <div class="user-details">
+              <span class="user-email" id="sidebar-user-email">user@example.com</span>
+              <span class="user-role" id="sidebar-user-role">USER</span>
+            </div>
+          </div>
+          <button class="btn-logout" id="logout-btn" title="Logout">⇥</button>
         </div>
+      </aside>
 
-        <!-- Task Grid -->
-        <div id="task-grid" class="task-grid"></div>
-
-        <!-- Pagination -->
-        <div class="pagination" id="pagination"></div>
-      </section>
-
-      <!-- Admin Section -->
-      <section id="admin-section" style="display:none">
-        <div class="section-header">
+      <!-- Main Content -->
+      <main class="main-content">
+        <section class="dashboard-hero">
           <div>
-            <h2>User Management</h2>
-            <p class="section-sub">Admin panel — manage all users</p>
+            <p class="eyebrow">Task mission board</p>
+            <h1 id="hero-title">Execution overview</h1>
+            <p class="hero-copy">Keep work moving with clean status tracking, role-aware access, and one place to manage every task.</p>
           </div>
-        </div>
-        <div id="users-table-wrapper" class="table-wrapper">
-          <table class="users-table">
-            <thead>
-              <tr><th>Email</th><th>Role</th><th>Tasks</th><th>Joined</th><th>Actions</th></tr>
-            </thead>
-            <tbody id="users-tbody"></tbody>
-          </table>
-        </div>
-      </section>
-    </main>
+          <div class="hero-badge-wrap">
+            <span class="hero-badge" id="hero-role-pill">Secure workspace</span>
+          </div>
+        </section>
+
+        <section class="stats-grid">
+          <article class="stat-panel">
+            <span class="stat-label">Current view</span>
+            <strong class="stat-value" id="stat-total">0</strong>
+          </article>
+          <article class="stat-panel">
+            <span class="stat-label">To do</span>
+            <strong class="stat-value" id="stat-todo">0</strong>
+          </article>
+          <article class="stat-panel">
+            <span class="stat-label">In progress</span>
+            <strong class="stat-value" id="stat-progress">0</strong>
+          </article>
+          <article class="stat-panel">
+            <span class="stat-label">Done</span>
+            <strong class="stat-value" id="stat-done">0</strong>
+          </article>
+        </section>
+
+        <!-- Tasks Section -->
+        <section id="tasks-section">
+          <div class="section-header">
+            <div>
+              <h2>Task board</h2>
+              <p class="section-sub" id="tasks-count">Loading tasks...</p>
+            </div>
+            <button class="btn btn-primary" id="new-task-btn">+ New Task</button>
+          </div>
+
+          <!-- Filters -->
+          <div class="filter-row">
+            <button class="filter-btn active" data-status="">All</button>
+            <button class="filter-btn" data-status="TODO">To Do</button>
+            <button class="filter-btn" data-status="IN_PROGRESS">In Progress</button>
+            <button class="filter-btn" data-status="DONE">Done</button>
+          </div>
+
+          <!-- Task Grid -->
+          <div id="task-grid" class="task-grid"></div>
+
+          <!-- Pagination -->
+          <div class="pagination" id="pagination"></div>
+        </section>
+
+        <!-- Admin Section -->
+        <section id="admin-section" style="display:none">
+          <div class="section-header">
+            <div>
+              <h2>Role control</h2>
+              <p class="section-sub">Promote, review, and manage workspace access across all users.</p>
+            </div>
+          </div>
+          <div class="admin-callout">
+            <p>Admins can review every account, task count, and access level from one table.</p>
+          </div>
+          <div id="users-table-wrapper" class="table-wrapper">
+            <table class="users-table">
+              <thead>
+                <tr><th>Email</th><th>Role</th><th>Tasks</th><th>Joined</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
   </div>
 
   <!-- Task Modal -->
   <div id="task-modal" class="modal-overlay hidden">
     <div class="modal">
       <div class="modal-header">
-        <h3 id="modal-title">New Task</h3>
+        <div>
+          <p class="eyebrow">Task editor</p>
+          <h3 id="modal-title">New Task</h3>
+        </div>
         <button class="modal-close" id="modal-close">✕</button>
       </div>
       <form id="task-form">

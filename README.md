@@ -154,6 +154,73 @@ npm start
 
 ---
 
+## Deployment
+
+This project is easiest to deploy as a single Node web service because the backend already serves the frontend.
+
+### Recommended Setup
+- App platform: Render Web Service
+- Database: Render Postgres
+- ORM workflow: Prisma migrations with `migrate deploy`
+
+### Included Deployment Files
+- `render.yaml` provisions one Node web service and one Postgres database
+- `prisma/migrations/` contains the initial SQL migration required for production deploys
+- `npm run db:deploy` applies pending migrations in production/staging
+
+### Render Deployment Steps
+1. Push the latest code to GitHub.
+2. In Render, create a new Blueprint and connect this repository.
+3. Render will detect `render.yaml` and create:
+   - `primetrade-app` web service
+   - `primetrade-db` PostgreSQL database
+4. During deploy, Render will:
+   - run `npm install`
+   - run `npm run db:deploy` as the pre-deploy command
+   - start the app with `npm start`
+5. Open the deployed URL and verify:
+   - `/api/health`
+   - `/api/docs`
+   - main frontend page `/`
+
+### Environment Variables
+
+The Render Blueprint sets these for you:
+- `DATABASE_URL` from the Render Postgres connection string
+- `JWT_SECRET` as a generated secret
+- `JWT_EXPIRES_IN=7d`
+- `NODE_ENV=production`
+
+Optional manual variables:
+- `CORS_ORIGIN`
+  Set this only if you later split frontend and backend across different domains.
+
+### Production Migration Workflow
+
+For local development:
+```bash
+npm run db:migrate
+```
+
+For staging/production:
+```bash
+npm run db:deploy
+```
+
+Do not use `prisma migrate dev` in production.
+
+### Manual Deployment Alternative
+
+If you prefer creating the Render service manually instead of using the Blueprint, use:
+- Runtime: `Node`
+- Build Command: `npm install`
+- Pre-Deploy Command: `npm run db:deploy`
+- Start Command: `npm start`
+
+Then provision a Render Postgres database and set `DATABASE_URL` from its internal connection string.
+
+---
+
 ## API Endpoints
 
 All endpoints are prefixed with `/api/v1`.

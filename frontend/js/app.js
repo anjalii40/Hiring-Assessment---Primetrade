@@ -32,9 +32,11 @@ function setupAuthListeners() {
   // Login
   document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const emailInput = document.getElementById('login-email');
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
     hideEl('login-error');
+    if (!validateEmailField(emailInput, 'login-error')) return;
     setLoading('login-btn', true);
     try {
       const res = await api.login(email, password);
@@ -50,10 +52,12 @@ function setupAuthListeners() {
   // Register
   document.getElementById('register-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const emailInput = document.getElementById('reg-email');
     const email = document.getElementById('reg-email').value.trim();
     const password = document.getElementById('reg-password').value;
-    setLoading('register-btn', true);
     hideEl('register-error'); hideEl('register-success');
+    if (!validateEmailField(emailInput, 'register-error')) return;
+    setLoading('register-btn', true);
     try {
       const res = await api.register(email, password);
       localStorage.setItem('token', res.data.token);
@@ -352,6 +356,25 @@ function showFieldError(id, msg) {
 
 function hideEl(id) {
   document.getElementById(id)?.classList.add('hidden');
+}
+
+function validateEmailField(input, errorId) {
+  const email = input.value.trim();
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!email) {
+    showFieldError(errorId, 'Email is required.');
+    input.focus();
+    return false;
+  }
+
+  if (!emailPattern.test(email)) {
+    showFieldError(errorId, 'Please enter a valid email address.');
+    input.focus();
+    return false;
+  }
+
+  return true;
 }
 
 function setLoading(btnId, loading) {

@@ -67,67 +67,72 @@ Standard JSON Response { success, message, data }
 
 ---
 
-## Frontend Wireframe
+## Project Snapshot
+
+| Area | What’s Included |
+|---|---|
+| Authentication | Register, login, JWT session flow, protected profile endpoint |
+| Authorization | User/admin role split with admin-only user management |
+| Tasks | Full CRUD with ownership checks and admin override |
+| Security | bcrypt hashing, helmet, CORS, rate limiting, request sanitization |
+| API DX | Swagger docs, versioned routes, consistent JSON responses |
+| Frontend | Responsive task dashboard with auth, stats, filters, admin view |
+
+### UX Wireframe
 
 ```text
+AUTH
 +-----------------------------------------------------------------------------------+
-| AUTH SCREEN                                                                       |
-|-----------------------------------------------------------------------------------|
-| PrimeTrade                         Operations cockpit                              |
-| Run task delivery with a sharper control panel                                     |
-| [ JWT ] [ RBAC ] [ CRUD ]                                                         |
-|                                                                                   |
-|                          +-------------------------------------+                  |
-|                          | Login | Register                    |                  |
-|                          |-------------------------------------|                  |
-|                          | Email                               |                  |
-|                          | Password                            |                  |
-|                          | [ Sign In ]                         |                  |
-|                          +-------------------------------------+                  |
+| Brand / value proposition                    | Login / Register panel             |
+| Security + RBAC highlights                   | Email                              |
+| Product notes                                | Password                           |
+|                                              | Primary CTA                        |
 +-----------------------------------------------------------------------------------+
 
+DASHBOARD
 +-----------------------------------------------------------------------------------+
-| DASHBOARD                                                                         |
-|-----------------------------------------------------------------------------------|
-| Sidebar                | Hero / Mission Board                                     |
-| - Tasks                | "Execution overview"                                     |
-| - Admin                | Role pill                                                |
-| - API Docs             | [ Current View ] [ To Do ] [ In Progress ] [ Done ]      |
-|                        |                                                           |
-| User Card              | Filter chips: All / To Do / In Progress / Done           |
-| Logout                 |                                                           |
-|                        | +----------------+  +----------------+                    |
-|                        | | Task Card      |  | Task Card      |                    |
-|                        | | Title          |  | Title          |                    |
-|                        | | Status Badge   |  | Status Badge   |                    |
-|                        | | Description    |  | Description    |                    |
-|                        | | Edit Delete    |  | Edit Delete    |                    |
-|                        | +----------------+  +----------------+                    |
-|                        |                                                           |
-|                        | Pagination                                               |
+| Sidebar              | Hero panel                                                  |
+| - Tasks              | Stats strip: Current / Todo / In Progress / Done           |
+| - Admin              | Filter chips                                                |
+| - API Docs           | Task grid                                                    |
+| User card            | Edit / Delete actions                                        |
+| Logout               | Pagination                                                   |
 +-----------------------------------------------------------------------------------+
+```
+
+### Core Flows
+
+```text
+1. User signs up or logs in
+2. Backend returns JWT token
+3. Frontend stores token and loads profile
+4. Authenticated user accesses task APIs
+5. Prisma persists task changes to PostgreSQL
+6. Admin users can also review users and update roles
 ```
 
 ---
 
-## Setup
+## Run Locally
 
-### 1. Prerequisites
-- Node.js >= 18
+### Requirements
+- Node.js `18+`
 - PostgreSQL running locally
 
-### 2. Clone & Install
+### Installation
+
 ```bash
 git clone https://github.com/anjalii40/Hiring-Assessment---Primetrade
 cd "hiring assesment primetrade"
 npm install
 ```
 
-### 3. Configure Environment
+### Environment
+
 ```bash
 cp .env.example .env
 ```
-Edit `.env`:
+
 ```env
 PORT=3000
 DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/primetrade_db?schema=public"
@@ -137,87 +142,111 @@ NODE_ENV=development
 CORS_ORIGIN=http://localhost:3000
 ```
 
-### 4. Run Database Migrations
+### Database Setup
+
 ```bash
 npm run db:migrate
 npm run db:generate
 ```
 
-### 5. Start the Server
-```bash
-# Development (with auto-reload)
-npm run dev
+### Start the App
 
-# Production
+```bash
+npm run dev
+```
+
+Production mode:
+
+```bash
 npm start
 ```
+
+### Local URLs
+
+| Surface | URL |
+|---|---|
+| App | `http://localhost:3000/` |
+| Health | `http://localhost:3000/api/health` |
+| Swagger | `http://localhost:3000/api/docs` |
 
 ---
 
 ## Deployment
 
-This project is easiest to deploy as a single Node web service because the backend already serves the frontend.
+PrimeTrade can be deployed either as a single full-stack service or as split frontend/backend services.
 
-### Recommended Setup
-- App platform: Render Web Service
-- Database: Render Postgres
-- ORM workflow: Prisma migrations with `migrate deploy`
+### Recommended Production Setup
 
-### Included Deployment Files
-- `render.yaml` provisions one Node web service and one Postgres database
-- `prisma/migrations/` contains the initial SQL migration required for production deploys
-- `npm run db:deploy` applies pending migrations in production/staging
+| Layer | Platform |
+|---|---|
+| Frontend | Vercel |
+| Backend API | Render Web Service |
+| Database | Render Postgres |
 
-### Render Deployment Steps
-1. Push the latest code to GitHub.
-2. In Render, create a new Blueprint and connect this repository.
-3. Render will detect `render.yaml` and create:
-   - `primetrade-app` web service
-   - `primetrade-db` PostgreSQL database
-4. During deploy, Render will:
-   - run `npm install`
-   - run `npm run db:deploy` as the pre-deploy command
-   - start the app with `npm start`
-5. Open the deployed URL and verify:
-   - `/api/health`
-   - `/api/docs`
-   - main frontend page `/`
+### Included Deployment Assets
 
-### Environment Variables
+| File | Purpose |
+|---|---|
+| `render.yaml` | Render service and Postgres blueprint |
+| `prisma/migrations/` | Initial migration history for production |
+| `package.json` | `db:deploy` and production-friendly install scripts |
 
-The Render Blueprint sets these for you:
-- `DATABASE_URL` from the Render Postgres connection string
-- `JWT_SECRET` as a generated secret
-- `JWT_EXPIRES_IN=7d`
-- `NODE_ENV=production`
+### Render Backend Setup
 
-Optional manual variables:
-- `CORS_ORIGIN`
-  Set this only if you later split frontend and backend across different domains.
+1. Create or connect a Render Postgres database.
+2. Create a Render Web Service from this repository.
+3. Use these commands:
+   - Build Command: `npm install`
+   - Pre-Deploy Command: `npm run db:deploy`
+   - Start Command: `npm start`
+4. Set environment variables:
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - `JWT_EXPIRES_IN=7d`
+   - `NODE_ENV=production`
+   - `CORS_ORIGIN=https://hiring-assessment-primetrade.vercel.app`
+5. Set health check path to `/api/health`.
 
-### Production Migration Workflow
+### Vercel Frontend Setup
 
-For local development:
+1. Import the same repository into Vercel.
+2. Set the Root Directory to `frontend`.
+3. Use Framework Preset `Other`.
+4. Leave Build Command blank for the static frontend.
+5. Deploy the project.
+
+The frontend is configured to call:
+
+```html
+https://hiring-assessment-primetrade.onrender.com/api/v1
+```
+
+via the `primetrade-api-base` meta tag in `frontend/index.html`.
+
+### Migration Workflow
+
+Local development:
+
 ```bash
 npm run db:migrate
 ```
 
-For staging/production:
+Production or staging:
+
 ```bash
 npm run db:deploy
 ```
 
-Do not use `prisma migrate dev` in production.
+> Use `migrate dev` only in local development. Use `migrate deploy` for hosted environments.
 
-### Manual Deployment Alternative
+### Deployment Verification
 
-If you prefer creating the Render service manually instead of using the Blueprint, use:
-- Runtime: `Node`
-- Build Command: `npm install`
-- Pre-Deploy Command: `npm run db:deploy`
-- Start Command: `npm start`
-
-Then provision a Render Postgres database and set `DATABASE_URL` from its internal connection string.
+After both services are live, verify:
+- Frontend: `https://hiring-assessment-primetrade.vercel.app`
+- Backend health: `https://hiring-assessment-primetrade.onrender.com/api/health`
+- Backend docs: `https://hiring-assessment-primetrade.onrender.com/api/docs`
+- Register, login, and create a task from the frontend UI
+- Confirm the task persists after refresh
 
 ---
 

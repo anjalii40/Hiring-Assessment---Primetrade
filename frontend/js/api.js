@@ -1,7 +1,9 @@
+const apiBaseMeta = document.querySelector('meta[name="primetrade-api-base"]');
+const configuredApiBase = apiBaseMeta?.content?.trim();
 const origin = window.location.origin.startsWith('http')
   ? window.location.origin
   : 'http://localhost:3000';
-const API_BASE = `${origin}/api/v1`;
+const API_BASE = configuredApiBase || `${origin}/api/v1`;
 
 const api = {
   // ── Auth ─────────────────────────────────────────────────────────────────
@@ -57,6 +59,7 @@ async function request(method, path, body = null, auth = true) {
 
   const raw = await res.text();
   let data = null;
+  const lowerRaw = raw.toLowerCase();
 
   if (raw) {
     try {
@@ -67,7 +70,17 @@ async function request(method, path, body = null, auth = true) {
   }
 
   if (!res.ok) {
-    const err = new Error(data?.message || 'Request failed');
+    let message = data?.message || 'Request failed';
+
+    if (
+      lowerRaw.includes('not_found') ||
+      lowerRaw.includes('the page could not be found') ||
+      lowerRaw.includes('<!doctype html')
+    ) {
+      message = 'API endpoint not found. Redeploy the frontend so it points to the Render backend.';
+    }
+
+    const err = new Error(message);
     err.errors = data?.errors;
     err.status = res.status;
     throw err;

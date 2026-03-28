@@ -20,6 +20,12 @@ const start = async () => {
 };
 
 // Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('SIGINT received. Closing server...');
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received. Closing server...');
   await prisma.$disconnect();

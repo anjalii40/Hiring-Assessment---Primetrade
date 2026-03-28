@@ -4,6 +4,7 @@ let currentPage = 1;
 let currentStatus = '';
 let totalPages = 1;
 let editingTaskId = null;
+let taskMap = new Map();
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -33,6 +34,7 @@ function setupAuthListeners() {
     e.preventDefault();
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
+    hideEl('login-error');
     setLoading('login-btn', true);
     try {
       const res = await api.login(email, password);
@@ -72,13 +74,13 @@ async function loadDashboard() {
   try {
     const res = await api.getMe();
     currentUser = res.data.user;
+    setActiveNav('nav-tasks');
+    showSection('tasks-section');
     document.getElementById('sidebar-user-email').textContent = currentUser.email;
     document.getElementById('sidebar-user-role').textContent = currentUser.role;
     document.getElementById('user-avatar').textContent = currentUser.email[0].toUpperCase();
-    if (currentUser.role === 'ADMIN') {
-      document.getElementById('nav-admin').style.display = 'flex';
-    }
-    loadTasks();
+    document.getElementById('nav-admin').style.display = currentUser.role === 'ADMIN' ? 'flex' : 'none';
+    await loadTasks();
   } catch {
     logout();
   }
@@ -120,6 +122,7 @@ async function loadTasks() {
   try {
     const res = await api.getTasks(currentStatus, currentPage);
     const { tasks, pagination } = res.data;
+    taskMap = new Map(tasks.map((task) => [task.id, task]));
     totalPages = pagination.totalPages;
 
     const count = pagination.total;
@@ -159,7 +162,13 @@ function renderTaskCard(task) {
 
 function attachTaskCardEvents() {
   document.querySelectorAll('.edit-task-btn').forEach(btn => {
-    btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+    btn.addEventListener('click', async () => {
+      try {
+        await openEditModal(btn.dataset.id);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
   });
   document.querySelectorAll('.delete-task-btn').forEach(btn => {
     btn.addEventListener('click', () => confirmDelete(btn.dataset.id));
@@ -167,18 +176,19 @@ function attachTaskCardEvents() {
 }
 
 async function openEditModal(taskId) {
-  const grid = document.getElementById('task-grid');
-  const card = grid.querySelector(`[data-id="${taskId}"]`);
-  const title = card.querySelector('.task-title').textContent;
-  const desc = card.querySelector('.task-desc')?.textContent || '';
-  const statusRaw = card.querySelector('.task-badge').className.split('badge-')[1];
+  let task = taskMap.get(taskId);
+
+  if (!task) {
+    const res = await api.getTask(taskId);
+    task = res.data.task;
+  }
 
   editingTaskId = taskId;
   document.getElementById('modal-title').textContent = 'Edit Task';
   document.getElementById('task-submit-btn').textContent = 'Save Changes';
-  document.getElementById('task-title').value = title;
-  document.getElementById('task-description').value = desc;
-  document.getElementById('task-status').value = statusRaw;
+  document.getElementById('task-title').value = task.title;
+  document.getElementById('task-description').value = task.description || '';
+  document.getElementById('task-status').value = task.status;
   openModal();
 }
 
@@ -303,6 +313,10 @@ function closeModal() {
 function logout() {
   localStorage.removeItem('token');
   currentUser = null;
+  currentPage = 1;
+  currentStatus = '';
+  taskMap = new Map();
+  document.getElementById('nav-admin').style.display = 'none';
   showScreen('auth-screen');
 }
 

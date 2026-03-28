@@ -6,8 +6,8 @@ const prisma = require('../config/database');
  */
 const getTasks = async (req, res, next) => {
   try {
-    const { status, page = 1, limit = 10 } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
+    const { status, page, limit } = req.query;
+    const skip = (page - 1) * limit;
 
     const where = {
       ...(req.user.role !== 'ADMIN' && { userId: req.user.id }),
@@ -18,7 +18,7 @@ const getTasks = async (req, res, next) => {
       prisma.task.findMany({
         where,
         skip,
-        take: Number(limit),
+        take: limit,
         orderBy: { createdAt: 'desc' },
         include: { user: { select: { id: true, email: true } } },
       }),
@@ -32,9 +32,9 @@ const getTasks = async (req, res, next) => {
         tasks,
         pagination: {
           total,
-          page: Number(page),
-          limit: Number(limit),
-          totalPages: Math.ceil(total / Number(limit)),
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
         },
       },
     });
@@ -97,9 +97,13 @@ const updateTask = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Access denied.' });
     }
 
+    const updateData = Object.fromEntries(
+      Object.entries(req.body).filter(([, value]) => value !== undefined),
+    );
+
     const updated = await prisma.task.update({
       where: { id: req.params.id },
-      data: req.body,
+      data: updateData,
     });
 
     res.status(200).json({ success: true, message: 'Task updated successfully.', data: { task: updated } });

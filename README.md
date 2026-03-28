@@ -41,6 +41,7 @@ DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/primetrade_db?schema=pub
 JWT_SECRET=your_super_secret_key_here
 JWT_EXPIRES_IN=7d
 NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
 ```
 
 ### 4. Run Database Migrations
@@ -150,12 +151,12 @@ Error responses include:
 
 ## Frontend
 
-Open `frontend/index.html` in a browser (or serve it statically):
+The backend serves the frontend automatically at `http://localhost:3000`:
 - Register / Login with JWT
 - View and manage your tasks (CRUD)
 - Admin users can see all tasks and manage roles
 
-> ⚠️ Update `API_BASE` in `frontend/js/api.js` if your backend runs on a different URL.
+> If you deploy the backend to another origin, update `CORS_ORIGIN` and the frontend origin accordingly.
 
 ---
 
@@ -170,10 +171,12 @@ Open `frontend/index.html` in a browser (or serve it statically):
 │   │   └── swagger.js     # Swagger config
 │   ├── controllers/
 │   │   ├── auth.controller.js
+│   │   ├── admin.controller.js
 │   │   └── task.controller.js
 │   ├── middleware/
 │   │   ├── auth.middleware.js
 │   │   ├── error.middleware.js
+│   │   ├── sanitize.middleware.js
 │   │   └── validate.middleware.js
 │   ├── routes/
 │   │   ├── auth.routes.js
@@ -181,6 +184,7 @@ Open `frontend/index.html` in a browser (or serve it statically):
 │   │   └── admin.routes.js
 │   └── validators/
 │       ├── auth.validator.js
+│       ├── admin.validator.js
 │       └── task.validator.js
 ├── prisma/
 │   └── schema.prisma      # DB schema

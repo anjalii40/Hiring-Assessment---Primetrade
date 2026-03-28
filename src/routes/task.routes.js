@@ -7,9 +7,14 @@ const {
   updateTask,
   deleteTask,
 } = require('../controllers/task.controller');
-const { authenticate, authorizeAdmin } = require('../middleware/auth.middleware');
+const { authenticate } = require('../middleware/auth.middleware');
 const { validate } = require('../middleware/validate.middleware');
-const { createTaskSchema, updateTaskSchema } = require('../validators/task.validator');
+const {
+  createTaskSchema,
+  updateTaskSchema,
+  taskIdParamSchema,
+  listTasksQuerySchema,
+} = require('../validators/task.validator');
 
 // All task routes require authentication
 router.use(authenticate);
@@ -50,7 +55,7 @@ router.use(authenticate);
  *       401:
  *         description: Unauthorized
  */
-router.get('/', getTasks);
+router.get('/', validate(listTasksQuerySchema, 'query'), getTasks);
 
 /**
  * @swagger
@@ -72,7 +77,7 @@ router.get('/', getTasks);
  *       404:
  *         description: Task not found
  */
-router.get('/:id', getTaskById);
+router.get('/:id', validate(taskIdParamSchema, 'params'), getTaskById);
 
 /**
  * @swagger
@@ -140,7 +145,7 @@ router.post('/', validate(createTaskSchema), createTask);
  *       404:
  *         description: Task not found
  */
-router.put('/:id', validate(updateTaskSchema), updateTask);
+router.put('/:id', validate(taskIdParamSchema, 'params'), validate(updateTaskSchema), updateTask);
 
 /**
  * @swagger
@@ -162,6 +167,6 @@ router.put('/:id', validate(updateTaskSchema), updateTask);
  *       404:
  *         description: Task not found
  */
-router.delete('/:id', deleteTask);
+router.delete('/:id', validate(taskIdParamSchema, 'params'), deleteTask);
 
 module.exports = router;

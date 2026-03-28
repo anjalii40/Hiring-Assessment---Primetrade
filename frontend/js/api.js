@@ -1,5 +1,7 @@
-// API base URL — change this to your deployed backend URL
-const API_BASE = 'http://localhost:3000/api/v1';
+const origin = window.location.origin.startsWith('http')
+  ? window.location.origin
+  : 'http://localhost:3000';
+const API_BASE = `${origin}/api/v1`;
 
 const api = {
   // ── Auth ─────────────────────────────────────────────────────────────────
@@ -23,6 +25,9 @@ const api = {
   },
   async updateTask(id, data) {
     return request('PUT', `/tasks/${id}`, data);
+  },
+  async getTask(id) {
+    return request('GET', `/tasks/${id}`);
   },
   async deleteTask(id) {
     return request('DELETE', `/tasks/${id}`);
@@ -50,12 +55,23 @@ async function request(method, path, body = null, auth = true) {
     ...(body && { body: JSON.stringify(body) }),
   });
 
-  const data = await res.json();
+  const raw = await res.text();
+  let data = null;
+
+  if (raw) {
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = { message: raw };
+    }
+  }
+
   if (!res.ok) {
-    const err = new Error(data.message || 'Request failed');
-    err.errors = data.errors;
+    const err = new Error(data?.message || 'Request failed');
+    err.errors = data?.errors;
     err.status = res.status;
     throw err;
   }
+
   return data;
 }

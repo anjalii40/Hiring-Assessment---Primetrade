@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const prisma = require('../config/database');
 const { authenticate, authorizeAdmin } = require('../middleware/auth.middleware');
+const { validate } = require('../middleware/validate.middleware');
+const { listUsers, updateUserRole } = require('../controllers/admin.controller');
+const { userIdParamSchema, updateRoleSchema } = require('../validators/admin.validator');
 
 /**
  * @swagger
@@ -22,17 +24,7 @@ const { authenticate, authorizeAdmin } = require('../middleware/auth.middleware'
  *       403:
  *         description: Admin access required
  */
-router.get('/users', authenticate, authorizeAdmin, async (req, res, next) => {
-  try {
-    const users = await prisma.user.findMany({
-      select: { id: true, email: true, role: true, createdAt: true, _count: { select: { tasks: true } } },
-      orderBy: { createdAt: 'desc' },
-    });
-    res.status(200).json({ success: true, message: 'Users retrieved.', data: { users } });
-  } catch (err) {
-    next(err);
-  }
-});
+router.get('/users', authenticate, authorizeAdmin, listUsers);
 
 /**
  * @swagger
@@ -65,21 +57,13 @@ router.get('/users', authenticate, authorizeAdmin, async (req, res, next) => {
  *       404:
  *         description: User not found
  */
-router.patch('/users/:id/role', authenticate, authorizeAdmin, async (req, res, next) => {
-  try {
-    const { role } = req.body;
-    if (!['USER', 'ADMIN'].includes(role)) {
-      return res.status(400).json({ success: false, message: 'Invalid role. Must be USER or ADMIN.' });
-    }
-    const user = await prisma.user.update({
-      where: { id: req.params.id },
-      data: { role },
-      select: { id: true, email: true, role: true },
-    });
-    res.status(200).json({ success: true, message: 'User role updated.', data: { user } });
-  } catch (err) {
-    next(err);
-  }
-});
+router.patch(
+  '/users/:id/role',
+  authenticate,
+  authorizeAdmin,
+  validate(userIdParamSchema, 'params'),
+  validate(updateRoleSchema),
+  updateUserRole,
+);
 
 module.exports = router;
